@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Student Details</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Add html2pdf library -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #studentReport, #studentReport * {
+        visibility: visible;
+    }
+    #studentReport {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
+:root {
+	--primary-color: #4e73df;
+	--secondary-color: #1cc88a;
+	--accent-color: #f6c23e;
+	--dark-color: #5a5c69;
+	--light-color: #f8f9fc;
+}
+
+body {
+	font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+		Roboto, 'Helvetica Neue', Arial, sans-serif;
+	background-color: var(--light-color);
+}
+
+.student-header {
+	background: linear-gradient(135deg, var(--primary-color) 0%, #224abe
+		100%);
+	color: white;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-card {
+	background: white;
+	border-radius: 0.35rem;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+	box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+	border-left: 3px solid var(--primary-color);
+}
+
+.section-title {
+	color: var(--dark-color);
+	border-bottom: 2px solid var(--primary-color);
+	padding-bottom: 0.5rem;
+	margin-bottom: 1.5rem;
+	font-weight: 600;
+}
+
+.attendance-present {
+	color: var(--secondary-color);
+	font-weight: bold;
+}
+
+.attendance-absent {
+	color: #e74a3b;
+	font-weight: bold;
+}
+
+.grade-A {
+	background-color: #d4edda;
+	color: #155724;
+}
+
+.grade-B {
+	background-color: #c3e6cb;
+	color: #0c5460;
+}
+
+.grade-C {
+	background-color: #bee5eb;
+	color: #004085;
+}
+
+.grade-D {
+	background-color: #fff3cd;
+	color: #856404;
+}
+
+.grade-F {
+	background-color: #f8d7da;
+	color: #721c24;
+}
+
+.attendance-chart, .performance-chart {
+	height: 300px;
+	margin-bottom: 2rem;
+}
+
+.back-button {
+	margin-bottom: 1.5rem;
+}
+
+.download-btn-container {
+	text-align: center;
+	margin: 2rem 0;
+}
+
+.btn-download {
+	background-color: #e74a3b;
+	color: white;
+	padding: 0.75rem 1.5rem;
+	font-size: 1.1rem;
+	border-radius: 0.35rem;
+	transition: all 0.3s;
+}
+
+.btn-download:hover {
+	background-color: #be2617;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media ( max-width : 768px) {
+	.info-card {
+		padding: 1rem;
+	}
+}
+
+/* Print-specific styles */
+@media print {
+	body {
+		background-color: white;
+		font-size: 12pt;
+	}
+	.container {
+		padding: 0;
+		max-width: 100%;
+	}
+	.back-button, .btn-download {
+		display: none;
+	}
+	.info-card {
+		box-shadow: none;
+		border: 1px solid #ddd;
+		page-break-inside: avoid;
+	}
+	.student-header {
+		background: #4e73df !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+	.section-title {
+		color: #5a5c69 !important;
+		border-bottom: 2px solid #4e73df !important;
+	}
+}
+</style>
+</head>
+<body>
+	<div class="container mt-4 mb-5" id="studentReport">
+		<!-- Back button -->
+		<a th:href="@{/teacher/viewAttendance}"
+			class="btn btn-primary back-button"> <i
+			class="fas fa-arrow-left me-2"></i>Back to Student List
+		</a>
+
+		<!-- Student Header -->
+		<div class="student-header">
+			<div class="row align-items-center">
+				<div class="col-md-2 text-center">
+					<i class="fas fa-user-graduate fa-4x"></i>
+				</div>
+				<div class="col-md-10">
+					<h1 th:text="${student.name}"></h1>
+					<div class="row mt-3">
+						<div class="col-md-4">
+							<p>
+								<i class="fas fa-id-card me-2"></i> <strong>ID:</strong> <span
+									th:text="${student.id}"></span>
+							</p>
+						</div>
+						<div class="col-md-4">
+							<p>
+								<i class="fas fa-envelope me-2"></i> <strong>Email:</strong> <span
+									th:text="${student.email}"></span>
+							</p>
+						</div>
+						<div class="col-md-4">
+							<p>
+								<i class="fas fa-phone me-2"></i> <strong>Phone:</strong> <span
+									th:text="${student.mobile ?: 'N/A'}"></span>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Basic Information Card -->
+<div class="info-card">
+    <h3 class="section-title">
+        <i class="fas fa-info-circle me-2"></i>Basic Information
+    </h3>
+    <div class="row">
+        <div class="col-md-4">
+            <p>
+                <strong>Date of Birth:</strong> 
+                <span th:text="${student.dob ?: 'N/A'}"></span>
+            </p>
+        </div>
+        <div class="col-md-4">
+            <p>
+                <strong>Gender:</strong> 
+                <span th:text="${student.gender}"></span>
+            </p>
+        </div>
+        <div class="col-md-4">
+            <p>
+                <strong>Admission Date:</strong> 
+                <span th:text="${#temporals.format(student.admissionDateTime, 'yyyy-MM-dd')}"></span>
+            </p>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <p><strong>City:</strong> <span th:text="${city ?: 'N/A'}"></span></p>
+        </div>
+        <div class="col-md-4">
+            <p><strong>Tehsil:</strong> <span th:text="${tehsil ?: 'N/A'}"></span></p>
+        </div>
+        <div class="col-md-4">
+            <p><strong>District:</strong> <span th:text="${districtString ?: 'N/A'}"></span></p>
+        </div>
+        <div class="col-md-4">
+            <p><strong>Postal Code:</strong> <span th:text="${postalString ?: 'N/A'}"></span></p>
+        </div>
+    </div>
+</div>
+
+		<!-- Attendance Summary Card -->
+<div class="info-card">
+    <h3 class="section-title">
+        <i class="fas fa-clipboard-list me-2"></i>Attendance Summary
+    </h3>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Classes</h5>
+                    <p class="card-text display-5" th:text="${totalClasses}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Present</h5>
+                    <p class="card-text display-5" th:text="${presentCount}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Absent</h5>
+                    <p class="card-text display-5" th:text="${absentCount}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="attendance-chart">
+        <canvas id="attendanceChart"></canvas>
+    </div>
+</div>
+
+<!-- Detailed Attendance Records -->
+<div class="info-card">
+    <h3 class="section-title">
+        <i class="fas fa-calendar-alt me-2"></i>Attendance History
+    </h3>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Date</th>
+                    
+                    <th>Subject</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="record : ${attendanceRecords}">
+                    <td th:text="${record.date}"></td>
+                    <td th:text="${record.teacher.subject}"></td>
+                    <td>
+                        <span th:if="${record.status == 'Present'}" class="attendance-present">
+                            <i class="fas fa-check-circle me-1"></i> Present
+                        </span>
+                        <span th:if="${record.status == 'Absent'}" class="attendance-absent">
+                            <i class="fas fa-times-circle me-1"></i> Absent
+                        </span>
+                    </td>
+<!--                     <td th:text="${record.remarks ?: '-'}"></td>
+ -->                </tr>
+                <tr th:if="${#lists.isEmpty(attendanceRecords)}">
+                    <td colspan="5" class="text-center">No attendance records found</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+		<!-- Academic Performance -->
+		<!-- Only the Academic Performance section needs to be updated -->
+<div class="info-card">
+    <h3 class="section-title">
+        <i class="fas fa-award me-2"></i>Academic Performance
+    </h3>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Subject</th>
+                    <th>Exam</th>
+                    <th style="width: 80px;">Grade</th>  <!-- Reduced width -->
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="grade : ${grades}">
+                    <td th:text="${grade.subject.name}"></td>
+                    <td th:text="${grade.test.name}"></td>
+                    <td style="padding: 0.3rem; white-space: nowrap;">  <!-- Reduced padding and prevented wrapping -->
+                        <span th:text="${grade.marksObtained.intValue()} + '/' + ${grade.totalMarks.intValue()}"></span>
+                    </td>
+<td>
+                        <span th:if="${grade.marksObtained >= grade.test.passingMarks}" 
+                              class="text-success fw-bold">Pass</span>
+                        <span th:if="${grade.marksObtained < grade.test.passingMarks}" 
+                              class="text-danger fw-bold">Fail</span>
+                    </td>                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+		<!-- Additional Notes -->
+		<div class="info-card">
+			<h3 class="section-title">
+				<i class="fas fa-sticky-note me-2"></i>Teacher's Notes
+			</h3>
+			<form th:action="@{/teacher/addNote}" method="post">
+				<input type="hidden" name="studentId" th:value="${student.id}">
+				<div class="mb-3">
+					<textarea class="form-control" name="note" rows="3"
+						placeholder="Add your notes about this student..."></textarea>
+				</div>
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-save me-2"></i>Save Note
+				</button>
+			</form>
+
+			<div th:if="${not #lists.isEmpty(notes)}" class="mt-4">
+				<h4>
+					<i class="fas fa-history me-2"></i>Previous Notes
+				</h4>
+				<div th:each="note : ${notes}" class="card mb-2">
+					<div class="card-body">
+						<p class="card-text" th:text="${note.content}"></p>
+						<p class="card-subtitle text-muted small">
+							<i class="fas fa-calendar-alt me-1"></i> <span
+								th:text="${#temporals.format(note.createdAt, 'MMMM dd, yyyy hh:mm a')}"></span>
+							by <span th:text="${note.teacherName}"></span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- PDF Download Button -->
+		<div class="download-btn-container">
+			<button id="downloadPdf" class="btn btn-download">
+				<i class="fas fa-file-pdf me-2"></i>Download as PDF
+			</button>
+		</div>
+	</div>
+
+	<!-- JavaScript Libraries -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+	
+document.addEventListener('DOMContentLoaded', function() {
+    // Attendance Chart
+    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+    const attendanceChart = new Chart(attendanceCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: [
+                    [[${presentCount}]],
+                    [[${absentCount}]]
+                ],
+                backgroundColor: [
+                    '#1cc88a', // Green for present
+                    '#e74a3b'  // Red for absent
+                ],
+                hoverBackgroundColor: [
+                    '#17a673', // Darker green
+                    '#be2617'  // Darker red
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Attendance Overview',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '70%',
+        },
+    });
+
+    // PDF Download functionality remains the same
+    document.getElementById('downloadPdf').addEventListener('click', function() {
+        const element = document.getElementById('studentReport');
+        const opt = {
+            margin: 10,
+            filename: 'Student_Report_' + [[${student.id}]] + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        html2pdf().set(opt).from(element).save();
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Attendance</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: #4a4a4a;
+        }
+
+        .attendance-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .attendance-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+        }
+
+        .student-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .student-header h3 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .student-header p {
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .student-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-card h5 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-card h5 i {
+            margin-right: 10px;
+        }
+
+        .subject-filter {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .form-check-input:checked + .form-check-label {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-secondary {
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+        }
+
+        .attendance-row {
+            transition: var(--transition);
+            border-radius: 8px;
+        }
+
+        .attendance-row:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+        .present-badge {
+            background-color: var(--success-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .present-badge::before {
+            content: "\F26E";
+            font-family: bootstrap-icons;
+            margin-right: 5px;
+            font-size: 0.8rem;
+        }
+
+        .absent-badge {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .absent-badge::before {
+            content: "\F62A";
+            font-family: bootstrap-icons;
+            margin-right: 5px;
+            font-size: 0.8rem;
+        }
+
+        .summary-card {
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border: none;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .summary-card.total::after {
+            background: var(--primary-color);
+        }
+
+        .summary-card.present::after {
+            background: var(--success-color);
+        }
+
+        .summary-card.absent::after {
+            background: var(--danger-color);
+        }
+
+        .summary-card .card-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .card-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .attendance-chart {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .attendance-chart h5 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .attendance-chart h5 i {
+            margin-right: 10px;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .no-records i {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 15px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .attendance-container {
+                margin: 20px 10px;
+                padding: 20px 15px;
+            }
+            
+            .filter-card {
+                padding: 15px;
+            }
+            
+            .summary-card .card-text {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="attendance-container">
+        <!-- Student Header -->
+        <div class="student-header fade-in">
+            <h3><i class="bi bi-calendar-check"></i> My Attendance Record</h3>
+            <p class="text-muted mb-0">
+                <i class="bi bi-person"></i> Student: <span th:text="${StudentName}" class="fw-semibold"></span>
+            </p>
+            <p class="text-muted">
+                <i class="bi bi-id-card"></i> ID: <span th:text="${StudentId}" class="fw-semibold"></span>
+            </p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-card fade-in">
+            <h5><i class="bi bi-funnel"></i> Filter Attendance</h5>
+            <form th:action="@{/filter-attendance}" method="get">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="date" class="form-label fw-semibold"><i class="bi bi-calendar3"></i> Select Date</label> 
+                            <input type="date" class="form-control" id="date" name="date" th:value="${selectedDate}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold"><i class="bi bi-book"></i> Select Subject</label>
+                            <div class="subject-filter">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="subjectId"
+                                        id="allSubjects" value=""
+                                        th:checked="${selectedSubjectId == null}"> 
+                                    <label class="form-check-label" for="allSubjects">All Subjects</label>
+                                </div>
+                                <div th:each="subject : ${Subjects}" class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="subjectId"
+                                        th:id="${'subject_' + subject.id}" th:value="${subject.id}"
+                                        th:checked="${selectedSubjectId != null && selectedSubjectId == subject.id}">
+                                    <label class="form-check-label" th:for="${'subject_' + subject.id}" 
+                                           th:text="${subject.name}"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-filter-circle"></i> Apply Filters</button>
+                    <a th:href="@{/attendance}" class="btn btn-outline-secondary ms-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+                </div>
+            </form>
+
+            <!-- Filtered Results Section -->
+            <div class="mt-4 fade-in" th:if="${filteredAttendance != null || (attendanceRecords != null and not attendanceRecords.empty)}">
+                <!-- Case 1: When filtering by subject and date (single result) -->
+                <div th:if="${filteredAttendance != null}">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0">
+                            <h5 class="mb-0"><i class="bi bi-search"></i> Filter Results</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th width="30%" class="text-muted">Date</th>
+                                            <td th:text="${filteredAttendance.date}" class="fw-semibold"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-muted">Subject</th>
+                                            <td th:text="${filteredAttendance.teacher.subject}" class="fw-semibold"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-muted">Status</th>
+                                            <td>
+                                                <span th:if="${filteredAttendance.status == 'Present'}" 
+                                                      class="present-badge">Present</span>
+                                                <span th:if="${filteredAttendance.status == 'Absent'}" 
+                                                      class="absent-badge">Absent</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-muted">Teacher</th>
+                                            <td th:text="${filteredAttendance.teacher.name}" class="fw-semibold"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Case 2: When filtering by date only (multiple results) -->
+                <div th:if="${attendanceRecords != null and not attendanceRecords.empty and filteredAttendance == null}">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0">
+                            <h5 class="mb-0"><i class="bi bi-calendar-date"></i> Attendance for <span th:text="${selectedDate}" class="text-primary"></span></h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th><i class="bi bi-book"></i> Subject</th>
+                                            <th><i class="bi bi-person-badge"></i> Teacher</th>
+                                            <th><i class="bi bi-info-circle"></i> Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="record : ${attendanceRecords}" class="attendance-row">
+                                            <td th:text="${record.teacher.subject}"></td>
+                                            <td th:text="${record.teacher.name}"></td>
+                                            <td>
+                                                <span th:if="${record.status == 'Present'}" class="present-badge">Present</span>
+                                                <span th:if="${record.status == 'Absent'}" class="absent-badge">Absent</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                
+            <!-- Case 3: When no results found -->
+            <div th:if="${(filteredAttendance == null) and (attendanceRecords == null or attendanceRecords.empty)}" 
+                 class="no-records fade-in">
+                <i class="bi bi-file-earmark-excel"></i>
+                <h5 class="mb-3">No attendance records found</h5>
+                <p class="text-muted">Try adjusting your filters to see more results</p>
+            </div>
+        </div>
+
+        <!-- Attendance Summary -->
+        <div class="row g-4 mb-4 fade-in">
+            <div class="col-md-4">
+                <div class="summary-card total">
+                    <h6 class="card-title"><i class="bi bi-calendar-week"></i> Total Classes</h6>
+                    <p class="card-text">
+                        <span th:text="${TotalDays}"></span>
+                    </p>
+                    <small class="text-muted">All subjects combined</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card present">
+                    <h6 class="card-title"><i class="bi bi-check-circle"></i> Present</h6>
+                    <p class="card-text">
+                        <span th:text="${Present}"></span>
+                    </p>
+                    <small class="text-muted" th:text="${TotalDays != 0 ? '(' + (Present * 100 / TotalDays) + '%)' : '(0%)'}"></small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card absent">
+                    <h6 class="card-title"><i class="bi bi-x-circle"></i> Absent</h6>
+                    <p class="card-text">
+                        <span th:text="${Absent}"></span>
+                    </p>
+                    <small class="text-muted" th:text="${TotalDays != 0 ? '(' + (Absent * 100 / TotalDays) + '%)' : '(0%)'}"></small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Chart (Optional) -->
+        <div class="attendance-chart fade-in">
+            <h5><i class="bi bi-bar-chart"></i> Attendance Overview</h5>
+            <div class="chart-placeholder">
+                <p>Visual chart would be displayed here showing attendance trends</p>
+            </div>
+            <div class="text-end mt-3">
+                <small class="text-muted"><i class="bi bi-info-circle"></i> This is a placeholder for future chart implementation</small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple animation trigger
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

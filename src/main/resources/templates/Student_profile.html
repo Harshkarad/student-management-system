@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --accent-color: #f6c23e;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+            --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
+            color: white;
+            text-align: center;
+            padding: 1.8rem 1rem;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+            position: relative;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #e3e6f0;
+        }
+
+        h2 {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-info {
+            margin: 0.8rem 0;
+            padding: 0.5rem;
+            border-bottom: 1px dashed #e3e6f0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .profile-info:last-child {
+            border-bottom: none;
+        }
+
+        strong {
+            color: var(--primary-color);
+            min-width: 150px;
+            font-weight: 600;
+        }
+
+        .editable-field {
+            flex-grow: 1;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .editable-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.25);
+        }
+
+        .editable-field.edit-mode {
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 0.35rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: none;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .btn i {
+            margin-right: 0.6rem;
+        }
+
+        .btn:hover {
+            background: #224abe;
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: var(--secondary-color);
+        }
+
+        .btn-success:hover {
+            background: #17a673;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-container {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 1.5rem;
+                margin: 0 1rem 2rem;
+            }
+            
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Profile section specific styling */
+        .profile-section {
+            margin-bottom: 2.5rem;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-section:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-user-circle"></i> Profile Details</h1>
+</header>
+
+<div class="profile-container">
+    <form id="profileForm" th:action="@{/update-profile}" method="post">
+        <div class="profile-section">
+            <h2><i class="fas fa-user"></i> Personal Information</h2>
+            <div class="profile-grid">
+                <div class="profile-info">
+                    <strong>Name:</strong> 
+                    <input type="text" class="editable-field" th:value="${name}" name="name" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Age:</strong> 
+                    <input type="number" class="editable-field" th:value="${age}" name="age" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Date of Birth:</strong> 
+                    <input type="date" class="editable-field" th:value="${dob}" name="dob" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Gender:</strong> 
+                    <select class="editable-field" name="gender" disabled>
+                        <option th:selected="${gender} == 'Male'" value="Male">Male</option>
+                        <option th:selected="${gender} == 'Female'" value="Female">Female</option>
+                        <option th:selected="${gender} == 'Other'" value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="profile-info">
+                    <strong>Nationality:</strong> 
+                    <input type="text" class="editable-field" th:value="${nation}" name="nation" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2><i class="fas fa-address-book"></i> Contact Information</h2>
+            <div class="profile-grid">
+                <div class="profile-info">
+                    <strong>Email:</strong> 
+                    <input type="email" class="editable-field" th:value="${email}" name="email" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Mobile:</strong> 
+                    <input type="tel" class="editable-field" th:value="${mobile}" name="mobile" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2><i class="fas fa-map-marker-alt"></i> Address</h2>
+            <div class="profile-grid">
+                <div class="profile-info">
+                    <strong>City:</strong> 
+                    <input type="text" class="editable-field" th:value="${city}" name="city" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Tehsil:</strong> 
+                    <input type="text" class="editable-field" th:value="${tehsil}" name="tehsil" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>District:</strong> 
+                    <input type="text" class="editable-field" th:value="${district}" name="district" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Postal Code:</strong> 
+                    <input type="text" class="editable-field" th:value="${postal}" name="postal" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2><i class="fas fa-users"></i> Guardian Details</h2>
+            <div class="profile-grid">
+                <div class="profile-info">
+                    <strong>Guardian Name:</strong> 
+                    <input type="text" class="editable-field" th:value="${gname}" name="gname" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Relation:</strong> 
+                    <input type="text" class="editable-field" th:value="${grelation}" name="grelation" readonly>
+                </div>
+                <div class="profile-info">
+                    <strong>Contact:</strong> 
+                    <input type="tel" class="editable-field" th:value="${gcontact}" name="gcontact" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="button" id="editBtn" class="btn">
+                <i class="fas fa-edit"></i> Edit Profile
+            </button>
+            <button type="submit" id="saveBtn" class="btn btn-success hidden">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <a href="/home" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <button type="button" id="cancelBtn" class="btn btn-secondary hidden">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const editableFields = document.querySelectorAll('.editable-field');
+        const form = document.getElementById('profileForm');
+        
+        editBtn.addEventListener('click', function() {
+            // Enable all editable fields
+            editableFields.forEach(field => {
+                field.readOnly = false;
+                field.disabled = false;
+                field.classList.add('edit-mode');
+            });
+            
+            // Toggle buttons
+            editBtn.classList.add('hidden');
+            saveBtn.classList.remove('hidden');
+            cancelBtn.classList.remove('hidden');
+        });
+        
+        cancelBtn.addEventListener('click', function() {
+            // Reload the page to discard changes
+            location.reload();
+        });
+        
+        form.addEventListener('submit', function(e) {
+            // Form will submit normally to the server
+            // No need for additional JavaScript handling
+        });
+    });
+</script>
+
+</body>
+</html>

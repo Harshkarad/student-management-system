@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create New Test</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+.question-card {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Improved spacing and layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    padding: 1rem 1.25rem;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Better form control styling */
+.form-control, .form-select {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+}
+
+/* Button spacing */
+.btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .row > .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    .d-md-flex {
+        flex-direction: column;
+    }
+}
+
+/* Better option list styling */
+.option-list {
+    margin-bottom: 1rem;
+}
+
+/* Fix for datetime-local inputs */
+input[type="datetime-local"] {
+    padding: 0.375rem 0.75rem;
+}
+
+/* Ensure proper spacing between form elements */
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+/* Better alignment for option controls */
+.option-item .form-check {
+    min-width: 1.5rem;
+}
+
+/* Make sure textareas have consistent height */
+textarea.form-control {
+    min-height: 100px;
+}
+
+/* Improve the look of the question cards */
+.question-card {
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Better alignment for question header */
+.question-card > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+</style>
+</head>
+<body>
+	<div class="container py-4">
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h1>Create New Test</h1>
+			<a th:href="@{/tests}" class="btn btn-outline-secondary"> <i
+				class="bi bi-arrow-left"></i> Back to Tests
+			</a>
+		</div>
+
+		<form th:action="@{/test/create}" method="post"
+			th:object="${testForm}">
+			<!-- Basic Test Information -->
+			<div class="card mb-4">
+				<div class="card-header bg-primary text-white">
+					<h5 class="mb-0">Test Information</h5>
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label for="testName" class="form-label">Test Name</label> <input
+							type="text" class="form-control" id="testName" th:field="*{name}"
+							required>
+						<div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
+							th:errors="*{name}"></div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label for="course" class="form-label">Course</label> <select
+								class="form-select" id="course" th:field="*{courseId}" required>
+								<option value="">Select Course</option>
+								<option th:each="subject : ${courses}" th:value="${subject.id}"
+									th:text="${subject.name + ' (Sem: ' + subject.semester + ')'}">
+								</option>
+							</select>
+							<div class="invalid-feedback"
+								th:if="${#fields.hasErrors('courseId')}" th:errors="*{courseId}"></div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label for="totalMarks" class="form-label">Total Marks</label> <input
+								type="number" class="form-control" id="totalMarks"
+								th:field="*{totalMarks}" required>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label for="startTime" class="form-label">Start Time</label> <input
+								type="datetime-local" class="form-control" id="startTime"
+								th:field="*{startTime}" required>
+						</div>
+						<div class="col-md-4 mb-3">
+							<label for="endTime" class="form-label">End Time</label> <input
+								type="datetime-local" class="form-control" id="endTime"
+								th:field="*{endTime}" required>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label for="duration" class="form-label">Duration
+								(minutes)</label> <input type="number" class="form-control"
+								id="duration" th:field="*{durationMinute}" required>
+						</div>
+						<div class="col-md-6 mb-3">
+        <label for="passingMarks" class="form-label">Passing Marks</label>
+        <input type="number" class="form-control" id="passingMarks" th:field="*{passingMarks}" required>
+    </div>
+
+</div>
+						
+					</div>
+					<div class="mb-3">
+						<label for="instructions" class="form-label">Instructions</label>
+						<textarea class="form-control" id="instructions"
+							th:field="*{instruction}" rows="3"></textarea>
+					</div>
+				</div>
+			</div>
+
+			<!-- Questions Section -->
+			<div class="card mb-4">
+				<div
+					class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Test Questions</h5>
+					<button type="button" class="btn btn-light btn-sm"
+						id="addQuestionBtn" onclick="addQuestion()">
+						<i class="bi bi-plus-circle"></i> Add Question
+					</button>
+				</div>
+				<div class="card-body" id="questionsContainer">
+					<!-- Initial question -->
+					<div class="question-card">
+						<div
+							class="d-flex justify-content-between align-items-center mb-3">
+							<h5>Question 1</h5>
+							<input type="hidden" class="question-id" name="questions[0].id" value="" />
+							<button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">
+								<i class="bi bi-trash"></i> Remove
+							</button>
+						</div>
+
+						<div class="mb-3">
+							<label class="form-label">Question Text</label>
+							<textarea class="form-control question-text"
+								name="questions[0].questionText" required></textarea>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">Question Type</label> <select
+									class="form-select question-type"
+									name="questions[0].questionType" required>
+									<option value="MCQ_SINGLE">Single Answer MCQ</option>
+									<option value="MCQ_MULTIPLE">Multiple Answer MCQ</option>
+									<option value="TRUE_FALSE">True/False</option>
+									<option value="DESCRIPTIVE">Descriptive</option>
+								</select>
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">Marks</label> <input type="number"
+									class="form-control question-marks" name="questions[0].marks"
+									required>
+							</div>
+						</div>
+
+						<div class="options-container">
+							<h6>Options</h6>
+							<div class="option-list">
+								<!-- Initial options -->
+								<div class="option-item mb-2">
+									<div class="d-flex align-items-center w-100">
+										<div class="form-check me-2">
+											<input class="form-check-input option-correct" type="radio" 
+												   name="questions[0].correctOptions" 
+												   value="0">
+										</div>
+										<input type="text" class="form-control option-text me-2" 
+											   name="questions[0].options[0].optionText" 
+											   placeholder="Option text" required>
+										<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOption(this)">
+											<i class="bi bi-trash"></i>
+										</button>
+									</div>
+								</div>
+								<div class="option-item mb-2">
+									<div class="d-flex align-items-center w-100">
+										<div class="form-check me-2">
+											<input class="form-check-input option-correct" type="radio" 
+												   name="questions[0].correctOptions" 
+												   value="1">
+										</div>
+										<input type="text" class="form-control option-text me-2" 
+											   name="questions[0].options[1].optionText" 
+											   placeholder="Option text" required>
+										<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOption(this)">
+											<i class="bi bi-trash"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+							<button type="button" class="btn btn-outline-primary btn-sm" onclick="addOption(this)">
+								<i class="bi bi-plus"></i> Add Option
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+				<button type="submit" class="btn btn-primary btn-lg">Save Test</button>
+			</div>
+		</form>
+	</div>
+
+	<!-- JavaScript Libraries -->
+	<script>
+    // Track the total number of questions (for display purposes)
+    let questionDisplayCount = document.querySelectorAll('.question-card').length;
+    
+    // Track the actual indexes used in form names (important for Spring binding)
+    let questionIndexes = [];
+    
+    // Initialize with the first question's index (0)
+    if (questionDisplayCount > 0) {
+        questionIndexes.push(0);
+    }
+    
+ // Track the actual question count (for form submission)
+    let questionCount = document.querySelectorAll('.question-card').length;
+
+    function addQuestion() {
+        const questionsContainer = document.getElementById('questionsContainer');
+        const newIndex = questionCount; // Use the counter instead of length
+        
+        const newQuestion = document.createElement('div');
+        newQuestion.className = 'question-card';
+        newQuestion.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Question ${newIndex + 1}</h5>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">
+                    <i class="bi bi-trash"></i> Remove
+                </button>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Question Text</label>
+                <textarea class="form-control question-text"
+                    name="questions[${newIndex}].questionText" required></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Question Type</label>
+                    <select class="form-select question-type"
+                        name="questions[${newIndex}].questionType" required onchange="handleQuestionTypeChange(this)">
+                        <option value="MCQ_SINGLE">Single Answer MCQ</option>
+                        <option value="MCQ_MULTIPLE">Multiple Answer MCQ</option>
+                        <option value="TRUE_FALSE">True/False</option>
+                        <option value="DESCRIPTIVE">Descriptive</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Marks</label>
+                    <input type="number" class="form-control question-marks" 
+                        name="questions[${newIndex}].marks" required>
+                </div>
+            </div>
+
+            <div class="options-container">
+                <h6>Options</h6>
+                <div class="option-list">
+                    <div class="option-item mb-2">
+                        <div class="d-flex align-items-center w-100">
+                            <div class="form-check me-2">
+                                <input class="form-check-input option-correct" type="radio" 
+                                       name="questions[${newIndex}].correctOptions" 
+                                       value="0">
+                            </div>
+                            <input type="text" class="form-control option-text me-2" 
+                                   name="questions[${newIndex}].options[0].optionText" 
+                                   placeholder="Option text" required>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOption(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="option-item mb-2">
+                        <div class="d-flex align-items-center w-100">
+                            <div class="form-check me-2">
+                                <input class="form-check-input option-correct" type="radio" 
+                                       name="questions[${newIndex}].correctOptions" 
+                                       value="1">
+                            </div>
+                            <input type="text" class="form-control option-text me-2" 
+                                   name="questions[${newIndex}].options[1].optionText" 
+                                   placeholder="Option text" required>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOption(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addOption(this, ${newIndex})">
+                    <i class="bi bi-plus"></i> Add Option
+                </button>
+            </div>
+        `;
+        
+        questionsContainer.appendChild(newQuestion);
+        questionCount++; // Increment the counter
+    }
+
+    function removeQuestion(button) {
+        if (confirm('Are you sure you want to remove this question?')) {
+            const questionCard = button.closest('.question-card');
+            questionCard.remove();
+            
+            // Re-index all questions
+            const questionsContainer = document.getElementById('questionsContainer');
+            const questionCards = questionsContainer.querySelectorAll('.question-card');
+            
+            questionCards.forEach((card, index) => {
+                // Update display number
+                card.querySelector('h5').textContent = `Question ${index + 1}`;
+                
+                // Update all form fields with new index
+                const textarea = card.querySelector('.question-text');
+                const select = card.querySelector('.question-type');
+                const marksInput = card.querySelector('.question-marks');
+                
+                textarea.name = `questions[${index}].questionText`;
+                select.name = `questions[${index}].questionType`;
+                marksInput.name = `questions[${index}].marks`;
+                
+                // Update options
+                const options = card.querySelectorAll('.option-item');
+                options.forEach((option, optIndex) => {
+                    const radio = option.querySelector('.option-correct');
+                    const textInput = option.querySelector('.option-text');
+                    
+                    radio.name = `questions[${index}].correctOptions`;
+                    radio.value = optIndex;
+                    textInput.name = `questions[${index}].options[${optIndex}].optionText`;
+                });
+                
+                // Update add option button
+                const addOptionBtn = card.querySelector('.options-container button[onclick^="addOption"]');
+                addOptionBtn.setAttribute('onclick', `addOption(this, ${index})`);
+            });
+            
+            questionCount = questionCards.length; // Update the counter
+        }
+    }  
+    function addOption(button, questionIndex) {
+        const optionList = button.previousElementSibling; // The div.option-list
+        const optionItems = optionList.querySelectorAll('.option-item');
+        const newOptionIndex = optionItems.length;
+        
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option-item mb-2';
+        optionDiv.innerHTML = `
+            <div class="d-flex align-items-center w-100">
+                <div class="form-check me-2">
+                    <input class="form-check-input option-correct" type="radio" 
+                           name="questions[${questionIndex}].correctOptions" 
+                           value="${newOptionIndex}">
+                </div>
+                <input type="text" class="form-control option-text me-2" 
+                       name="questions[${questionIndex}].options[${newOptionIndex}].optionText" 
+                       placeholder="Option text" required>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeOption(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        optionList.appendChild(optionDiv);
+    }
+    
+    function removeOption(button) {
+        const optionItem = button.closest('.option-item');
+        const optionList = optionItem.parentElement;
+        const questionCard = optionItem.closest('.question-card');
+        
+        // Get the question index from the first option's name
+        const firstOption = optionList.querySelector('.option-item');
+        if (firstOption) {
+            const inputName = firstOption.querySelector('input[type="radio"]').name;
+            const questionIndexMatch = inputName.match(/questions\[(\d+)\]/);
+            if (questionIndexMatch) {
+                const questionIndex = questionIndexMatch[1];
+                
+                // Remove the option
+                optionItem.remove();
+                
+                // Reindex remaining options for this question
+                const options = optionList.querySelectorAll('.option-item');
+                options.forEach((option, index) => {
+                    const radio = option.querySelector('input[type="radio"]');
+                    const textInput = option.querySelector('input[type="text"]');
+                    
+                    // Update the value/index of the radio button
+                    radio.value = index;
+                    
+                    // Update the option index in the text input name
+                    textInput.name = `questions[${questionIndex}].options[${index}].optionText`;
+                });
+            }
+        } else {
+            // If this was the last option, just remove it
+            optionItem.remove();
+        }
+    }
+
+    function handleQuestionTypeChange(selectElement) {
+        const questionCard = selectElement.closest('.question-card');
+        const optionsContainer = questionCard.querySelector('.options-container');
+        const questionType = selectElement.value;
+        
+        if (questionType === 'DESCRIPTIVE') {
+            optionsContainer.style.display = 'none';
+        } else {
+            optionsContainer.style.display = 'block';
+            
+            // Change input type based on question type
+            const correctOptions = questionCard.querySelectorAll('.option-correct');
+            correctOptions.forEach(option => {
+                option.type = questionType === 'MCQ_MULTIPLE' ? 'checkbox' : 'radio';
+                
+                // For multiple correct options, we need to use array syntax
+                if (questionType === 'MCQ_MULTIPLE') {
+                    option.name = option.name.replace('correctOptions', 'correctOptions[]');
+                } else {
+                    option.name = option.name.replace('correctOptions[]', 'correctOptions');
+                }
+            });
+        }
+    }
+    
+    // Initialize any existing questions (in case of form validation errors)
+    document.addEventListener('DOMContentLoaded', function() {
+        const questionTypeSelects = document.querySelectorAll('.question-type');
+        questionTypeSelects.forEach(select => {
+            handleQuestionTypeChange(select);
+        });
+    });
+</script>
+</body>
+</html>

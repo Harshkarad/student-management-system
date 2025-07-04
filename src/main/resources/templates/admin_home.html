@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+    /* Report Styles */
+.card {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+    padding: 8px 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+    border-radius: 50px;
+}
+
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --text-color: #2b2d42;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 25px 15px;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 25px auto;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background: white;
+            transition: var(--transition);
+        }
+
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Headings */
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 8px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            font-size: 1.2em;
+        }
+
+        h3, h4 {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .form-section:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Tables */
+        .table-responsive {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table th {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 15px;
+            font-weight: 500;
+        }
+
+        .table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+
+        .table tr:hover td {
+            background-color: rgba(72, 149, 239, 0.05);
+        }
+
+        /* Buttons */
+        .btn-custom {
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.25);
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger-color), #d90429);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #6c757d, #495057);
+        }
+
+        /* Form Elements */
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            transition: var(--transition);
+            margin-bottom: 15px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background-color: #ebfbee;
+            color: #2b8a3e;
+            border-left-color: #40c057;
+        }
+
+        /* Table Actions */
+        .table-actions {
+            white-space: nowrap;
+        }
+
+        .table-actions form {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+                margin: 15px 10px;
+            }
+            
+            header {
+                font-size: 22px;
+                padding: 20px 10px;
+            }
+            
+            .btn-custom {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .container:nth-child(2) { animation-delay: 0.1s; }
+        .container:nth-child(3) { animation-delay: 0.2s; }
+        .container:nth-child(4) { animation-delay: 0.3s; }
+        .container:nth-child(5) { animation-delay: 0.4s; }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .status-present {
+            background-color: #ebfbee;
+            color: #2b8a3e;
+        }
+
+        .status-absent {
+            background-color: #fff3bf;
+            color: #e67700;
+        }
+
+        /* Card Layout for Teacher/Subject Info */
+        .info-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Announcement Styles */
+        .announcement-card {
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+        
+        .announcement-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .announcement-title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .announcement-date {
+            font-size: 0.85em;
+            color: #6c757d;
+        }
+        
+        .announcement-expiry {
+            font-size: 0.8em;
+            color: var(--warning-color);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-user-shield"></i> Welcome, Admin!</h1>
+</header>
+
+<!-- Announcement Management Section -->
+<div class="container">
+    <h2><i class="fas fa-bullhorn"></i> Announcement Management</h2>
+    
+    <div th:if="${successMessage}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="info-card">
+                <h4><i class="fas fa-plus-circle"></i> Create New Announcement</h4>
+                <form th:action="@{/admin/createAnnouncement}" method="post">
+                    <div class="form-group">
+                        <input type="text" name="title" placeholder="Announcement Title" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="content" placeholder="Announcement Content" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date (optional):</label>
+                        <input type="date" name="expiryDate" id="expiryDate" class="form-control">
+                    </div>
+                    <button type="submit" class="btn-custom">
+                        <i class="fas fa-paper-plane"></i> Post Announcement
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="info-card">
+                <h4><i class="fas fa-info-circle"></i> Announcement Guidelines</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Keep titles clear and concise</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Include all relevant details in the content</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Set expiry dates for time-sensitive announcements</li>
+                    <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Review content before posting</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <h4><i class="fas fa-list"></i> Current Announcements</h4>
+        
+        <div th:if="${announcements != null and !announcements.empty}">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Content</th>
+                            <th>Posted On</th>
+                            <th>Expires On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="announcement : ${announcements}">
+                            <td th:text="${announcement.title}"></td>
+                            <td th:text="${announcement.content}"></td>
+                            <td th:text="${#temporals.format(announcement.postDate, 'dd-MMM-yyyy')}"></td>
+                            <td>
+                                <span th:if="${announcement.expiryDate != null}" 
+                                      th:text="${#temporals.format(announcement.expiryDate, 'dd-MMM-yyyy')}"></span>
+                                <span th:if="${announcement.expiryDate == null}" class="text-muted">No expiry</span>
+                            </td>
+                            <td class="table-actions">
+                                <form th:action="@{/admin/deleteAnnouncement}" method="post">
+                                    <input type="hidden" name="announcementId" th:value="${announcement.id}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div th:if="${announcements == null or announcements.empty}" class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No announcements found.
+        </div>
+    </div>
+</div>
+
+<!-- Teacher Management Section -->
+<div class="container">
+    <h2><i class="fas fa-chalkboard-teacher"></i> Teacher Management</h2>
+    
+    <div th:if="${successMessage}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+    </div>
+    
+     <div th:if="${successMessage1}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage1}"></span>
+    </div>
+    
+    <h3>All Teachers</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="teacher : ${teachers}">
+                    <td th:text="${teacher.id}"></td>
+                    <td th:text="${teacher.name}"></td>
+                    <td th:text="${teacher.email}"></td>
+                    <td class="table-actions">
+                        <form th:action="@{/admin/removeTeacher}" method="post">
+                            <input type="hidden" name="teacherId" th:value="${teacher.id}">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Subject Management Section -->
+<div class="container">
+    <h2><i class="fas fa-book"></i> Subject Management</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="info-card">
+                <h4><i class="fas fa-plus-circle"></i> Add New Subject</h4>
+                <form th:action="@{/admin/addSubject}" method="post" th:object="${subjects}">
+                    <div class="form-group">
+                        <input type="text" name="subjectName" placeholder="Subject Name" th:field="*{name}" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="subjectCode" placeholder="Subject Code" th:field="*{code}" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="number" name="subjectSemester" placeholder="Semester" th:field="*{semester}" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="number" name="subjectTotalMarks" placeholder="Total Marks" th:field="*{totalMarks}" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="number" name="subjectPassmark" placeholder="Passing Marks" th:field="*{passMarks}" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="teacherId">Assign Teacher:</label>
+                        <select name="teacherId" id="teacherId" class="form-control" required>
+                            <option value="">-- Select Teacher --</option>
+                            <option th:each="teacher : ${teachers}" 
+                                    th:value="${teacher.id}" 
+                                    th:text="${teacher.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-custom">
+                        <i class="fas fa-save"></i> Add Subject
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="info-card">
+                <h4><i class="fas fa-link"></i> Assign Subject to Teacher</h4>
+                <form th:action="@{/admin/assignSubject}" method="post">
+                    <div class="form-group">
+                        <label for="assignTeacher">Select Teacher:</label>
+                        <select name="teacherId" id="assignTeacher" class="form-control" required>
+                            <option value="">-- Select Teacher --</option>
+                            <option th:each="teacher : ${teachers}" 
+                                    th:value="${teacher.id}" 
+                                    th:text="${teacher.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="assignSubject">Select Subject:</label>
+                        <select name="subjectId" id="assignSubject" class="form-control" required>
+                            <option value="">-- Select Subject --</option>
+                            <option th:each="subject : ${subjects1}" 
+                                    th:value="${subject.id}" 
+                                    th:text="${subject.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-custom">
+                        <i class="fas fa-user-graduate"></i> Assign Subject
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <h3><i class="fas fa-list-ol"></i> All Subjects</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Code</th>
+                        <th>Semester</th>
+                        <th>Total Marks</th>
+                        <th>Pass Marks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="subject : ${subjects1}">
+                        <td th:text="${subject.name}"></td>
+                        <td th:text="${subject.code}"></td>
+                        <td th:text="${subject.semester}"></td>
+                        <td th:text="${subject.totalMarks}"></td>
+                        <td th:text="${subject.passMarks}"></td>
+                        <td class="table-actions">
+                            <form th:action="@{/deleteSubject}" method="post">
+                                <input type="hidden" name="subjectId" th:value="${subject.id}">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Management Section -->
+<div class="container">
+    <h2><i class="fas fa-clipboard-check"></i> Attendance Management</h2>
+    
+    <div class="info-card">
+        <h4><i class="fas fa-filter"></i> Filter Attendance by Subject and Date</h4>
+        <form th:action="@{/admin/filterAttendance}" method="get">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="subjectId">Subject:</label>
+                        <select name="subjectId" id="subjectId" class="form-control" required>
+                            <option value="">-- Select Subject --</option>
+                            <option th:each="subject : ${subjects1}" 
+                                    th:value="${subject.id}" 
+                                    th:text="${subject.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" name="date" id="date" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn-custom mt-3">
+                <i class="fas fa-search"></i> Filter Attendance
+            </button>
+        </form>
+    </div>
+    
+    <!-- Results Section -->
+    <div th:if="${attendanceRecords != null}">
+        <h3 class="mt-4"><i class="fas fa-list-check"></i> Attendance Results</h3>
+        
+        <div th:if="${!attendanceRecords.empty}">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                        	<th>Roll Number</th>
+                            <th>Student Name</th>
+                            <th>Status</th>
+                            <th>Teacher</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="attendance : ${attendanceRecords}">
+                        	<td th:text="${attendance.student.id}"></td>
+                            <td th:text="${attendance.student.name}"></td>
+                            
+                            <td>
+                                <span th:if="${attendance.status == 'Present'}" 
+                                      class="badge bg-success">Present</span>
+                                <span th:if="${attendance.status == 'Absent'}" 
+                                      class="badge bg-danger">Absent</span>
+                            </td>
+                            <td th:text="${attendance.teacher.name}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                Total Records: <span th:text="${attendanceRecords.size()}"></span>
+            </div>
+        </div>
+        
+        <div th:if="${attendanceRecords.empty}" class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> 
+            No attendance records found for the selected subject and date.
+        </div>
+    </div>
+</div>
+
+<div class="container text-center">
+    <a th:href="@{/logout}" class="btn-custom">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
