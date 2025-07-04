@@ -11,7 +11,8 @@ A complete web-based student management system built with Spring Boot that handl
 
 ### User Management
 - Admin, Teacher, and Student roles
-- Secure authentication system
+- Easy to Access
+- All academic information at a same place
 - Profile management
 
 ### Core Functionalities
